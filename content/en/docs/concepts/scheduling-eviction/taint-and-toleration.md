@@ -5,7 +5,7 @@ reviewers:
 - bsalamat
 title: Taints and Tolerations
 content_type: concept
-weight: 40
+weight: 50
 ---
 
 
@@ -15,14 +15,14 @@ is a property of {{< glossary_tooltip text="Pods" term_id="pod" >}} that *attrac
 a set of {{< glossary_tooltip text="nodes" term_id="node" >}} (either as a preference or a
 hard requirement). _Taints_ are the opposite -- they allow a node to repel a set of pods.
 
-_Tolerations_ are applied to pods, and allow (but do not require) the pods to schedule
-onto nodes with matching taints.
+_Tolerations_ are applied to pods. Tolerations allow the scheduler to schedule pods with matching
+taints. Tolerations allow scheduling but don't guarantee scheduling: the scheduler also
+[evaluates other parameters](/docs/concepts/scheduling-eviction/pod-priority-preemption/)
+as part of its function.
 
 Taints and tolerations work together to ensure that pods are not scheduled
 onto inappropriate nodes. One or more taints are applied to a node; this
 marks that the node should not accept any pods that do not tolerate the taints.
-
-
 
 <!-- body -->
 
@@ -224,6 +224,11 @@ In case a node is to be evicted, the node controller or the kubelet adds relevan
 with `NoExecute` effect. If the fault condition returns to normal the kubelet or node
 controller can remove the relevant taint(s).
 
+In some cases when the node is unreachable, the API server is unable to communicate
+with the kubelet on the node. The decision to delete the pods cannot be communicated to
+the kubelet until communication with the API server is re-established. In the meantime,
+the pods that are scheduled for deletion may continue to run on the partitioned node.
+
 {{< note >}}
 The control plane limits the rate of adding node new taints to nodes. This rate limiting
 manages the number of evictions that are triggered when many nodes become unreachable at
@@ -267,7 +272,8 @@ This ensures that DaemonSet pods are never evicted due to these problems.
 ## Taint Nodes by Condition
 
 The control plane, using the node {{<glossary_tooltip text="controller" term_id="controller">}},
-automatically creates taints with a `NoSchedule` effect for [node conditions](/docs/concepts/scheduling-eviction/node-pressure-eviction/#node-conditions).
+automatically creates taints with a `NoSchedule` effect for
+[node conditions](/docs/concepts/scheduling-eviction/node-pressure-eviction/#node-conditions).
 
 The scheduler checks taints, not node conditions, when it makes scheduling
 decisions. This ensures that node conditions don't directly affect scheduling.
@@ -298,7 +304,7 @@ arbitrary tolerations to DaemonSets.
 
 ## {{% heading "whatsnext" %}}
 
-* Read about [Node-pressure Eviction](/docs/concepts/scheduling-eviction/node-pressure-eviction/) and how you can configure it
+* Read about [Node-pressure Eviction](/docs/concepts/scheduling-eviction/node-pressure-eviction/)
+  and how you can configure it
 * Read about [Pod Priority](/docs/concepts/scheduling-eviction/pod-priority-preemption/)
-
 

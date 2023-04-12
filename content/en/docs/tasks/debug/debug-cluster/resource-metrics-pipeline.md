@@ -173,7 +173,7 @@ repository. You must enable the [API aggregation layer](/docs/tasks/extend-kuber
 and register an [APIService](/docs/reference/kubernetes-api/cluster-resources/api-service-v1/)
 for the `metrics.k8s.io` API.
 
-To learn more about the Metrics API, see [resource metrics API design](https://github.com/kubernetes/design-proposals-archive/blob/main/instrumentation/resource-metrics-api.md),
+To learn more about the Metrics API, see [resource metrics API design](https://git.k8s.io/design-proposals-archive/instrumentation/resource-metrics-api.md),
 the [metrics-server repository](https://github.com/kubernetes-sigs/metrics-server) and the
 [resource metrics API](https://github.com/kubernetes/metrics#resource-metrics-api).
 
@@ -232,37 +232,18 @@ to collect metrics from each node. Depending on the metrics-server version it us
 * Metrics resource endpoint `/metrics/resource` in version v0.6.0+ or
 * Summary API endpoint `/stats/summary` in older versions
 
+## {{% heading "whatsnext" %}}
+
 To learn more about the metrics-server, see the
 [metrics-server repository](https://github.com/kubernetes-sigs/metrics-server).
 
 You can also check out the following:
 
-* [metrics-server design](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/instrumentation/metrics-server.md)
+* [metrics-server design](https://git.k8s.io/design-proposals-archive/instrumentation/metrics-server.md)
 * [metrics-server FAQ](https://github.com/kubernetes-sigs/metrics-server/blob/master/FAQ.md)
 * [metrics-server known issues](https://github.com/kubernetes-sigs/metrics-server/blob/master/KNOWN_ISSUES.md)
 * [metrics-server releases](https://github.com/kubernetes-sigs/metrics-server/releases)
 * [Horizontal Pod Autoscaling](/docs/tasks/run-application/horizontal-pod-autoscale/)
 
-### Summary API source
-
-The [kubelet](/docs/reference/command-line-tools-reference/kubelet/) gathers stats at the node,
-volume, pod and container level, and emits this information in
-the [Summary API](https://github.com/kubernetes/kubernetes/blob/7d309e0104fedb57280b261e5677d919cb2a0e2d/staging/src/k8s.io/kubelet/pkg/apis/stats/v1alpha1/types.go)
-for consumers to read.
-
-Here is an example of a Summary API request for a `minikube` node:
-
-```shell
-kubectl get --raw "/api/v1/nodes/minikube/proxy/stats/summary"
-```
-
-Here is the same API call using `curl`:
-
-```shell
-curl http://localhost:8080/api/v1/nodes/minikube/proxy/stats/summary
-```
-
-{{< note >}}
-The summary API `/stats/summary` endpoint will be replaced by the `/metrics/resource` endpoint
-beginning with metrics-server 0.6.x.
-{{< /note >}}
+To learn about how the kubelet serves node metrics, and how you can access those via
+the Kubernetes API, read [Node Metrics Data](/docs/reference/instrumentation/node-metrics).

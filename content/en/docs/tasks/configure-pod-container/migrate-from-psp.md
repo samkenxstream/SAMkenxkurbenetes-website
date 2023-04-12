@@ -5,6 +5,7 @@ reviewers:
 - liggitt
 content_type: task
 min-kubernetes-server-version: v1.22
+weight: 260
 ---
 
 <!-- overview -->
@@ -17,7 +18,10 @@ admission controller. This can be done effectively using a combination of dry-ru
 
 {{% version-check %}}
 
-- Ensure the `PodSecurity` [feature gate](/docs/reference/command-line-tools-reference/feature-gates/#feature-gates-for-alpha-or-beta-features) is enabled.
+If you are currently running a version of Kubernetes other than
+{{< skew currentVersion >}}, you may want to switch to viewing this
+page in the documentation for the version of Kubernetes that you
+are actually running.
 
 This page assumes you are already familiar with the basic [Pod Security Admission](/docs/concepts/security/pod-security-admission/)
 concepts.
@@ -323,7 +327,7 @@ configuration of the API server:
 
 To verify that the PodSecurityPolicy admission controller is no longer enabled, you can manually run
 a test by impersonating a user without access to any PodSecurityPolicies (see the
-[PodSecurityPolicy example](/docs/concepts/policy/pod-security-policy/#example)), or by verifying in
+[PodSecurityPolicy example](/docs/concepts/security/pod-security-policy/#example)), or by verifying in
 the API server logs. At startup, the API server outputs log lines listing the loaded admission
 controller plugins:
 

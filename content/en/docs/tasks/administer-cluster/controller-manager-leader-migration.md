@@ -5,17 +5,16 @@ reviewers:
 title: "Migrate Replicated Control Plane To Use Cloud Controller Manager"
 linkTitle: "Migrate Replicated Control Plane To Use Cloud Controller Manager"
 content_type: task
+weight: 250
 ---
 
 <!-- overview -->
-
-{{< feature-state for_k8s_version="v1.24" state="stable"  >}}
 
 {{< glossary_definition term_id="cloud-controller-manager" length="all" prepend="The cloud-controller-manager is">}}
 
 ## Background
 
-As part of the [cloud provider extraction effort](https://kubernetes.io/blog/2019/04/17/the-future-of-cloud-providers-in-kubernetes/), all cloud specific controllers must be moved out of the `kube-controller-manager`. All existing clusters that run cloud controllers in the `kube-controller-manager` must migrate to instead run the controllers in a cloud provider specific `cloud-controller-manager`.
+As part of the [cloud provider extraction effort](/blog/2019/04/17/the-future-of-cloud-providers-in-kubernetes/), all cloud specific controllers must be moved out of the `kube-controller-manager`. All existing clusters that run cloud controllers in the `kube-controller-manager` must migrate to instead run the controllers in a cloud provider specific `cloud-controller-manager`.
 
 Leader Migration provides a mechanism in which HA clusters can safely migrate "cloud specific" controllers between the `kube-controller-manager` and the `cloud-controller-manager` via a shared resource lock between the two components while upgrading the replicated control plane. For a single-node control plane, or if unavailability of controller managers can be tolerated during the upgrade, Leader Migration is not needed and this guide can be ignored.
 

@@ -2,10 +2,10 @@
 reviewers:
 - smarterclayton
 - liggitt
-- ericchiang
-- destijl
+- enj
 title: Securing a Cluster
 content_type: task
+weight: 320
 ---
 
 <!-- overview -->
@@ -13,14 +13,9 @@ content_type: task
 This document covers topics related to protecting a cluster from accidental or malicious access
 and provides recommendations on overall security.
 
-
-
 ## {{% heading "prerequisites" %}}
 
-
 * {{< include "task-tutorial-prereqs.md" >}} {{< version-check >}}
-
-
 
 <!-- steps -->
 
@@ -77,11 +72,13 @@ Consult the [authorization reference section](/docs/reference/access-authn-authz
 
 ## Controlling access to the Kubelet
 
-Kubelets expose HTTPS endpoints which grant powerful control over the node and containers. By default Kubelets allow unauthenticated access to this API.
+Kubelets expose HTTPS endpoints which grant powerful control over the node and containers.
+By default Kubelets allow unauthenticated access to this API.
 
 Production clusters should enable Kubelet authentication and authorization.
 
-Consult the [Kubelet authentication/authorization reference](/docs/reference/command-line-tools-reference/kubelet-authentication-authorization) for more information.
+Consult the [Kubelet authentication/authorization reference](/docs/reference/access-authn-authz/kubelet-authn-authz/)
+for more information.
 
 ## Controlling the capabilities of a workload or user at runtime
 
@@ -258,11 +255,14 @@ and may grant an attacker significant visibility into the state of your cluster.
 your backups using a well reviewed backup and encryption solution, and consider using full disk
 encryption where possible.
 
-Kubernetes supports [encryption at rest](/docs/tasks/administer-cluster/encrypt-data/), a feature 
-introduced in 1.7, and beta since 1.13. This will encrypt `Secret` resources in etcd, preventing
-parties that gain access to your etcd backups from viewing the content of those secrets. While
-this feature is currently beta, it offers an additional level of defense when backups
-are not encrypted or an attacker gains read access to etcd.
+Kubernetes supports optional [encryption at rest](/docs/tasks/administer-cluster/encrypt-data/) for information in the Kubernetes API. 
+This lets you ensure that when Kubernetes stores data for objects (for example, `Secret` or
+`ConfigMap` objects), the API server writes an encrypted representation of the object.
+That encryption means that even someone who has access to etcd backup data is unable
+to view the content of those objects.
+In Kubernetes {{< skew currentVersion >}} you can also encrypt custom resources;
+encryption-at-rest for extension APIs defined in CustomResourceDefinitions was added to
+Kubernetes as part of the v1.26 release.
 
 ### Receiving alerts for security updates and reporting vulnerabilities
 

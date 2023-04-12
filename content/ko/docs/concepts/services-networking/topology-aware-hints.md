@@ -1,6 +1,6 @@
 ---
-
-
+# reviewers:
+# - robscott
 title: 토폴로지 인지 힌트
 content_type: concept
 weight: 45
@@ -18,6 +18,12 @@ _토폴로지 인지 힌트(Topology Aware Hints)_ 는 클라이언트가 엔드
 
 예를 들어, 비용을 줄이거나 네트워크 성능을 높이기 위해, 
 인접성을 고려하여 트래픽을 라우트할 수 있다.
+
+{{< note >}}
+"토폴로지 인지 힌트" 기능은 베타 단계이며 기본적으로 활성화되어 있지 **않다**. 
+이 기능을 사용해 보려면, 
+`TopologyAwareHints` [기능 게이트](/ko/docs/reference/command-line-tools-reference/feature-gates/)를 활성화해야 한다.
+{{< /note >}}
 
 <!-- body -->
 
@@ -141,7 +147,7 @@ kube-proxy 구성요소는 엔드포인트슬라이스 컨트롤러가 설정한
   준비되지 않은(unready) 노드는 무시한다. 
   이 때문에 많은 노드가 준비되지 않은 상태에서는 의도하지 않은 결과가 나타날 수도 있다.
 
-* 엔드포인트슬라이스 컨트롤러는 각 존 내의 비율을 계산할 때 
+* 엔드포인트슬라이스 컨트롤러는 각 존 내의 비율을 배포하거나 계산할 때
   {{< glossary_tooltip text="톨러레이션" term_id="toleration" >}}은 고려하지 않는다. 
   서비스를 구성하는 파드가 클러스터의 일부 노드에만 배치되어 있는 경우, 
   이러한 상황은 고려되지 않을 것이다.

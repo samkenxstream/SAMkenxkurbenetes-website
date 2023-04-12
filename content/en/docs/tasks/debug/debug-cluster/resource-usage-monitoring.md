@@ -41,8 +41,11 @@ memory usage. The kubelet acts as a bridge between the Kubernetes master and
 the nodes, managing the pods and containers running on a machine. The kubelet 
 translates each pod into its constituent containers and fetches individual 
 container usage statistics from the container runtime through the container 
-runtime interface. The kubelet fetches this information from the integrated 
-cAdvisor for the legacy Docker integration.  It then exposes the aggregated pod 
+runtime interface. If you use a container runtime that uses Linux cgroups and
+namespaces to implement containers, and the container runtime does not publish
+usage statistics, then the kubelet can look up those statistics directly
+(using code from [cAdvisor](https://github.com/google/cadvisor)).
+No matter how those statistics arrive, the kubelet then exposes the aggregated pod
 resource usage statistics through the metrics-server Resource Metrics API.
 This API is served at `/metrics/resource/v1beta1` on the kubelet's authenticated and 
 read-only ports. 
@@ -54,10 +57,17 @@ respond to these metrics by  automatically scaling or adapting the cluster
 based on its current state, using mechanisms such as the Horizontal Pod
 Autoscaler. The monitoring pipeline fetches metrics from the kubelet and
 then exposes them to Kubernetes via an adapter by implementing either the
-`custom.metrics.k8s.io` or `external.metrics.k8s.io` API. 
+`custom.metrics.k8s.io` or `external.metrics.k8s.io` API.
 
-[Prometheus](https://prometheus.io), a CNCF project, can natively monitor Kubernetes, nodes, and Prometheus itself.
-Full metrics pipeline projects that are not part of the CNCF are outside the scope of Kubernetes documentation.  
+Integration of a full metrics pipeline into your Kubernetes implementation is outside
+the scope of Kubernetes documentation because of the very wide scope of possible
+solutions.
+
+The choice of monitoring platform depends heavily on your needs, budget, and technical resources.
+Kubernetes does not recommend any specific metrics pipeline; [many options](https://landscape.cncf.io/card-mode?category=monitoring&project=graduated,incubating,member,no&grouping=category&sort=stars) are available.
+Your monitoring system should be capable of handling the [OpenMetrics](https://openmetrics.io/) metrics
+transmission standard, and needs to chosen to best fit in to your overall design and deployment of
+your infrastructure platform.
 
 ## {{% heading "whatsnext" %}}
 

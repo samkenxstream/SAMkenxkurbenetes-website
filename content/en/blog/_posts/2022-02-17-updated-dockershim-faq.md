@@ -5,6 +5,7 @@ linkTitle: "Dockershim Removal FAQ"
 date: 2022-02-17
 slug: dockershim-faq
 aliases: [ '/dockershim' ]
+evergreen: true
 ---
 
 **This supersedes the original
@@ -86,7 +87,7 @@ in Kubernetes 1.24.
 
 If you're running Kubernetes v1.24 or later, see [Can I still use Docker Engine as my container runtime?](#can-i-still-use-docker-engine-as-my-container-runtime).
 (Remember, you can switch away from the dockershim if you're using any supported Kubernetes release; from release v1.24, you
-**must** switch as Kubernetes no longer incluides the dockershim).
+**must** switch as Kubernetes no longer includes the dockershim).
 
 [kubelet]: /docs/reference/command-line-tools-reference/kubelet/
 

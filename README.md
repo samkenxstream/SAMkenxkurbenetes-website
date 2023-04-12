@@ -9,14 +9,14 @@ This repository contains the assets required to build the [Kubernetes website an
 
 ## Using this repository
 
-You can run the website locally using Hugo (Extended version), or you can run it in a container runtime. We strongly recommend using the container runtime, as it gives deployment consistency with the live website.
+You can run the website locally using [Hugo (Extended version)](https://gohugo.io/), or you can run it in a container runtime. We strongly recommend using the container runtime, as it gives deployment consistency with the live website.
 
 ## Prerequisites
 
 To use this repository, you need the following installed locally:
 
 - [npm](https://www.npmjs.com/)
-- [Go](https://golang.org/)
+- [Go](https://go.dev/)
 - [Hugo (Extended version)](https://gohugo.io/)
 - A container runtime, like [Docker](https://www.docker.com/).
 
@@ -29,17 +29,24 @@ cd website
 
 The Kubernetes website uses the [Docsy Hugo theme](https://github.com/google/docsy#readme). Even if you plan to run the website in a container, we strongly recommend pulling in the submodule and other development dependencies by running the following:
 
-```bash
-# pull in the Docsy submodule
+### Windows
+```powershell
+# fetch submodule dependencies
 git submodule update --init --recursive --depth 1
+```
+
+### Linux / other Unix
+```bash
+# fetch submodule dependencies
+make module-init
 ```
 
 ## Running the website using a container
 
-To build the site in a container, run the following to build the container image and run it:
+To build the site in a container, run the following:
 
 ```bash
-make container-image
+# You can set $CONTAINER_ENGINE to the name of any Docker-like container tool
 make container-serve
 ```
 
@@ -63,7 +70,7 @@ This will start the local Hugo server on port 1313. Open up your browser to <htt
 
 ## Building the API reference pages
 
-The API reference pages located in `content/en/docs/reference/kubernetes-api` are built from the Swagger specification, using <https://github.com/kubernetes-sigs/reference-docs/tree/master/gen-resourcesdocs>.
+The API reference pages located in `content/en/docs/reference/kubernetes-api` are built from the Swagger specification, also known as OpenAPI specification, using <https://github.com/kubernetes-sigs/reference-docs/tree/master/gen-resourcesdocs>.
 
 To update the reference pages for a new Kubernetes release follow these steps:
 
@@ -189,7 +196,7 @@ If you need help at any point when contributing, the [New Contributor Ambassador
 
 ## Code of conduct
 
-Participation in the Kubernetes community is governed by the [CNCF Code of Conduct](https://github.com/cncf/foundation/blob/master/code-of-conduct.md).
+Participation in the Kubernetes community is governed by the [CNCF Code of Conduct](https://github.com/cncf/foundation/blob/main/code-of-conduct.md).
 
 ## Thank you
 

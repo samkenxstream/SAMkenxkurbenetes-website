@@ -1,10 +1,10 @@
 ---
+# reviewers:
+# - stclair
 title: AppArmor를 사용하여 리소스에 대한 컨테이너의 접근 제한
 content_type: tutorial
 weight: 10
 ---
-
-
 
 <!-- overview -->
 
@@ -106,7 +106,7 @@ AppArmor 지원이 포함된 Kubelet (>= v1.4)이면
 노드 준비 조건 메시지를 확인하여(이후 릴리스에서는 삭제될 것 같지만) 검증할 수 있다.
 
 ```shell
-kubectl get nodes -o=jsonpath=$'{range .items[*]}{@.metadata.name}: {.status.conditions[?(@.reason=="KubeletReady")].message}\n{end}'
+kubectl get nodes -o=jsonpath='{range .items[*]}{@.metadata.name}: {.status.conditions[?(@.reason=="KubeletReady")].message}{"\n"}{end}'
 ```
 ```
 gke-test-default-pool-239f5d02-gyn2: kubelet is posting ready status. AppArmor enabled
@@ -118,10 +118,10 @@ gke-test-default-pool-239f5d02-xwux: kubelet is posting ready status. AppArmor e
 
 <!-- lessoncontent -->
 
-## 파드 보안 강화하기 {#securing-a-pod}
+## 파드 보안 강화하기
 
 {{< note >}}
-AppArmor는 현재 베타라서 옵션은 어노테이션 형식으로 지정한다. 일반 사용자 버전이 되면,
+AppArmor는 현재 베타이며, 이 때문에 옵션은 어노테이션 형식으로 지정한다. 일반 사용자 버전이 되면,
 어노테이션은 최상위 종류의 필드로 대체될 것이다(자세한 내용은
 [일반 사용자 버전으로 업그레이드 방법](#upgrade-path-to-general-availability) 참고)
 {{< /note >}}
@@ -158,13 +158,13 @@ kubectl get events | grep Created
 컨테이너의 루트 프로세스가 올바른 프로파일로 실행되는지는 proc attr을 확인하여 직접 검증할 수 있다.
 
 ```shell
-kubectl exec <pod_name> cat /proc/1/attr/current
+kubectl exec <pod_name> -- cat /proc/1/attr/current
 ```
 ```
 k8s-apparmor-example-deny-write (enforce)
 ```
 
-## 예시 {#example}
+## 예시
 
 *이 예시는 AppArmor를 지원하는 클러스터를 이미 구성하였다고 가정한다.*
 
@@ -264,7 +264,7 @@ metadata:
 spec:
   containers:
   - name: hello
-    image: busybox
+    image: busybox:1.28
     command: [ "sh", "-c", "echo 'Hello AppArmor!' && sleep 1h" ]
 EOF
 pod/hello-apparmor-2 created
@@ -325,9 +325,9 @@ Events:
 파드 상태는 Pending이며, 오류 메시지는 `Pod Cannot enforce AppArmor: profile
 "k8s-apparmor-example-allow-write" is not loaded`이다. 이벤트도 동일한 메시지로 기록되었다.
 
-## 관리 {#administration}
+## 관리
 
-### 프로파일과 함께 노드 설정하기 {#setting-up-nodes-with-profiles}
+### 프로파일과 함께 노드 설정하기
 
 현재 쿠버네티스는 AppArmor 프로파일을 노드에 적재하기 위한 네이티브 메커니즘을 제공하지 않는다.
 프로파일을 설정하는 여러 방법이 있다. 예를 들면 다음과 같다.
@@ -346,65 +346,24 @@ Events:
 [노드 셀렉터](/ko/docs/concepts/scheduling-eviction/assign-pod-node/)를 이용하여
 파드가 필요한 프로파일이 있는 노드에서 실행되도록 한다.
 
-### 파드시큐리티폴리시(PodSecurityPolicy)로 프로파일 제한하기 {#restricting-profiles-with-the-podsecuritypolicy}
+### AppArmor 비활성화
 
-{{< note >}}
-파드시큐리티폴리시는 쿠버네티스 v1.21에서 사용 중단되었으며, v1.25에서 제거될 예정이다. 
-더 자세한 내용은 [파드시큐리티폴리시 문서](/ko/docs/concepts/policy/pod-security-policy/)를 참고한다.
-{{< /note >}}
-
-만약 파드시큐리티폴리시 확장을 사용하면, 클러스터 단위로 AppArmor 제한을 적용할 수 있다.
-파드시큐리티폴리시를 사용하려면 위해 다음의 플래그를 반드시 `apiserver`에 설정해야 한다.
-
-```
---enable-admission-plugins=PodSecurityPolicy[,others...]
-```
-
-AppArmor 옵션은 파드시큐리티폴리시의 어노테이션으로 지정할 수 있다.
-
-```yaml
-apparmor.security.beta.kubernetes.io/defaultProfileName: <profile_ref>
-apparmor.security.beta.kubernetes.io/allowedProfileNames: <profile_ref>[,others...]
-```
-
-기본 프로파일 이름 옵션은 프로파일을 지정하지 않았을 때에
-컨테이너에 기본으로 적용하는 프로파일을 지정한다.
-허용하는 프로파일 이름 옵션은 파드 컨테이너가 함께 실행하도록 허용되는 프로파일 목록을 지정한다.
-두 옵션을 모두 사용하는 경우, 기본값은 반드시 필요하다.
-프로파일은 컨테이너에서 같은 형식으로 지정된다. 전체 사양은 [API 참조](#api-reference)를 찾아본다.
-
-### AppArmor 비활성화 {#disabling-apparmor}
-
-클러스터에서 AppArmor 사용하지 않으려면, 커맨드라인 플래그로 비활성화 할 수 있다.
+클러스터에서 AppArmor를 사용하지 않으려면, 커맨드라인 플래그로 비활성화 할 수 있다.
 
 ```
 --feature-gates=AppArmor=false
 ```
 
-비활성화되면 AppArmor 프로파일을 포함한 파드는 "Forbidden" 오류로 검증 실패한다.
-기본적으로 도커는 항상 비특권 파드에 "docker-default" 프로파일을 활성화하고(AppArmor 커널모듈이 활성화되었다면),
-기능 게이트가 비활성화된 것처럼 진행한다.
-AppArmor를 비활성화하는 이 옵션은
-AppArmor가 일반 사용자 버전이 되면 제거된다.
+비활성화되면, AppArmor 프로파일을 포함한 파드는 
+"Forbidden" 오류로 검증 실패한다.
 
-### AppArmor와 함께 쿠버네티스 1.4로 업그레이드 하기 {#upgrading-to-kubernetes-v1.4-with-apparmor}
+{{<note>}}
+쿠버네티스 기능이 비활성화되어 있어도, 런타임이 계속 기본 프로파일을 강제할 수도 있다. 
+AppArmor가 general availability (GA) 상태로 바뀌면 
+AppArmor 기능을 비활성화하는 옵션은 제거될 것이다.
+{{</note>}}
 
-클러스터 버전을 v1.4로 업그레이드하기 위해 AppArmor쪽 작업은 없다.
-그러나 AppArmor 어노테이션을 가진 파드는 유효성 검사(혹은 파드시큐리티폴리시 승인)을 거치지 않는다.
-그 노드에 허용 프로파일이 로드되면, 악의적인 사용자가 허가 프로필을 미리 적용하여
-파드의 권한을 docker-default 보다 높일 수 있다.
-이것이 염려된다면 `apparmor.security.beta.kubernetes.io` 어노테이션이 포함된
-모든 파드의 클러스터를 제거하는 것이 좋다.
-
-### 일반 사용자 버전으로 업그레이드 방법 {#upgrade-path-to-general-availability}
-
-AppArmor는 일반 사용자 버전(general available)으로 준비되면 현재 어노테이션으로 지정되는 옵션은 필드로 변경될 것이다.
-모든 업그레이드와 다운그레이드 방법은 전환을 통해 지원하기에는 매우 미묘하니
-전환이 필요할 때에 상세히 설명할 것이다.
-최소 두 번의 릴리스에 대해서는 필드와 어노테이션 모두를 지원할 것이고,
-그 이후부터는 어노테이션은 명확히 거부된다.
-
-## 프로파일 제작 {#authoring-profiles}
+## 프로파일 제작
 
 AppArmor 프로파일을 만들고 올바르게 지정하는 것은 매우 까다로울 수 있다.
 다행히 이 작업에 도움 되는 도구가 있다.
@@ -415,19 +374,15 @@ AppArmor 프로파일을 만들고 올바르게 지정하는 것은 매우 까�
 * [bane](https://github.com/jfrazelle/bane)은 단순화된 프로파일 언어를 이용하는 도커를 위한
   AppArmor 프로파일 생성기이다.
 
-개발 장비의 도커를 통해 애플리케이션을 실행하여
-프로파일을 생성하는 것을 권장하지만,
-파드가 실행 중인 쿠버네티스 노드에서 도구 실행을 금하지는 않는다.
-
 AppArmor 문제를 디버깅하기 위해서 거부된 것으로 보이는 시스템 로그를 확인할 수 있다.
 AppArmor 로그는 `dmesg`에서 보이며, 오류는 보통 시스템 로그나
 `journalctl`에서 볼 수 있다. 더 많은 정보는
 [AppArmor 실패](https://gitlab.com/apparmor/apparmor/wikis/AppArmor_Failures)에서 제공한다.
 
 
-## API 참조 {#api-reference}
+## API 참조
 
-### 파드 어노테이션 {#pod-annotation}
+### 파드 어노테이션
 
 컨테이너를 실행할 프로파일을 지정한다.
 
@@ -436,36 +391,19 @@ AppArmor 로그는 `dmesg`에서 보이며, 오류는 보통 시스템 로그나
   분리된 프로파일은 파드 내에 각 컨테이너로 지정할 수 있다.
 - **값**: 아래 기술된 프로파일 참조
 
-### 프로파일 참조 {#profile-reference}
+### 프로파일 참조
 
 - `runtime/default`: 기본 런타임 프로파일을 참조한다.
   - (기본 파드시큐리티폴리시 없이) 프로파일을 지정하지 않고
     AppArmor를 사용하는 것과 동등하다.
-  - 도커에서는 권한 없는 컨테이너의 경우는
-    [`docker-default`](https://docs.docker.com/engine/security/apparmor/) 프로파일로,
-    권한이 있는 컨테이너의 경우 unconfined(프로파일 없음)으로 해석한다.
+  - 실제로는, 많은 컨테이너 런타임은 동일한 OCI 기본 프로파일을 사용하며, 이는 
+    https://github.com/containers/common/blob/main/pkg/apparmor/apparmor_linux_template.go 에 정의되어 있다.
 - `localhost/<profile_name>`: 노드(localhost)에 적재된 프로파일을 이름으로 참조한다.
    - 가용한 프로파일 이름의 상세 내용은
      [핵심 정책 참조](https://gitlab.com/apparmor/apparmor/wikis/AppArmor_Core_Policy_Reference#profile-names-and-attachment-specifications)에 설명되어 있다.
 - `unconfined`: 이것은 컨테이너에서 AppArmor를 효과적으로 비활성시킨다.
 
 다른 어떤 프로파일 참조 형식도 유효하지 않다.
-
-### 파드시큐리티폴리시 어노테이션 {#podsecuritypolicy-annotations}
-
-아무 프로파일도 제공하지 않을 때에 컨테이너에 적용할 기본 프로파일을 지정하기
-
-* **키**: `apparmor.security.beta.kubernetes.io/defaultProfileName`
-* **값**: 프로파일 참조. 위에 기술됨.
-
-파드 컨테이너에서 지정을 허용하는 프로파일 목록 지정하기
-
-* **키**: `apparmor.security.beta.kubernetes.io/allowedProfileNames`
-* **값**: 컴마로 구분된 참조 프로파일 목록(위에 기술함)
-  - 비록 이스케이프된 쉼표(%2C ',')도 프로파일 이름에서 유효한 문자이지만
-    여기에서 명시적으로 허용하지 않는다.
-
-
 
 ## {{% heading "whatsnext" %}}
 
